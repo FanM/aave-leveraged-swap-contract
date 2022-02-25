@@ -43,7 +43,7 @@ However, without increasing our collateral this can only be done by multiple bor
 
 #### Deposit, then Borrow
 
-To achieve the aforementioned in a single operation, we need to reverse our process by acquiring some extra liquidity upfront. If someone can lend us _L_ amount of stable coins to increase our collateral, then we will be able to borrow the same amount of some token from the liquidity pool. We repay that person by swapping our token to the stable coins.
+To achieve the aforementioned in a single operation, we need to reverse our process by acquiring some extra liquidity upfront. If someone can lend us _L'_ amount of some tokens to increase our collateral, then we will be able to borrow L amount of our chosen tokens from the liquidity pool. We repay that person by swapping our chosen tokens to the original tokens.
 
 ##### Flash Loan
 
@@ -53,21 +53,25 @@ Without asking a friend to do us this favor, we can utilize Aave's [flash loans]
 
 <img src="https://render.githubusercontent.com/render/math?math={\large R_{flash}}" title="Flash loan rate" /> is the rate of flash loan (0.09% currently in Aave).
 
-Plus, we need to factor the lost due to the swap slippage in as well.
+Plus, we need to factor the lost due to the swap slippage in as well. Anyways, **(4)** has to be satisfied, or:
+
+<img src="https://render.githubusercontent.com/render/math?math={\Large L \leq \sum_{i=1}^{k}(R_{ltv}^{i}\cdot A_{i})-D_{exist} %2B R_{ltv}^{t}\cdot L^{'}} \space \space \space \textbf{(6)}" title="maximum borrow with depositing back" />
+
+Let's take the following two cases separately:
 
 1. Pay fees using the collateral
 
   <img src="https://render.githubusercontent.com/render/math?math={\Large L\cdot(1-R_{slip})=(L^{'} %2B fee)}" title="lost in swap slippage" />
   Or,
   <img src="https://render.githubusercontent.com/render/math?math={\Large L^{'} = L \cdot \frac{1-R_{slip}}{1 %2B R_{flash}}} " title="lost in swap slippage" />
+  So,
+  <img src="https://render.githubusercontent.com/render/math?math={\Large L_{max} \leq \frac{(\sum_{i=1}^{k}(R_{ltv}^{i}\cdot A_{i})-D_{exist})\cdot(1 %2B R_{flash})}{1 %2B R_{flash}-R_{ltv}^{t}\cdot(1-R_{slip})}}" title="lost in swap slippage" />
 
 2. Pay fees with extra ethers
 
   <img src="https://render.githubusercontent.com/render/math?math={\Large L^{'} = L\cdot(1-R_{slip})}" title="lost in swap slippage" />
-
-In both cases, **(4)** has to be satisfied, or:
-
-<img src="https://render.githubusercontent.com/render/math?math={\Large L \leq \sum_{i=1}^{k}(R_{ltv}^{i}\cdot A_{i})-D_{exist} %2B R_{ltv}^{t}\cdot L^{'}} \space \space \space \textbf{(6)}" title="maximum borrow with depositing back" />
+  So,
+  <img src="https://render.githubusercontent.com/render/math?math={\Large L_{max} \leq \frac{\sum_{i=1}^{k}(R_{ltv}^{i}\cdot A_{i})-D_{exist}}{1-R_{ltv}^{t}\cdot(1-R_{slip})}}" title="lost in swap slippage" />
 
 Our health factor after those operations will be:
 
