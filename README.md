@@ -1,8 +1,12 @@
 # Aave Leveraged Swap
 
+Dapp: [Aave-swap](https://aave-swap.oughtto.be)
+
+Contract: [0xf2b08a65726b894b550f5c6cfc95576f8dec263f](https://polygonscan.com/address/0xf2b08a65726b894b550f5c6cfc95576f8dec263f)
+
 This Dapp can help you engineer leveraged long/short positions with your [Aave](https://aave.com) collaterals. We assume that you understand Aave's borrow protocol and the incurred interests.
 
-Currently, the [solidity contract](https://polygonscan.com/address/0xf2b08a65726b894b550f5c6cfc95576f8dec263f#code) is deployed on Polygon network only, feel free to fork it on the Ethereum mainnet. If you'd like to understand how this contract calculates its numbers, checkout this [article](./math.md).
+Currently, the Solidity contract is deployed on [Polygon](https://polygon.technology) network only, feel free to fork it on the Ethereum mainnet. If you'd like to understand how this contract calculates its numbers, checkout this [article](./math.md).
 
 ## Usage
 
@@ -25,7 +29,7 @@ Click the _CREATE A LEVERAGED POSITION_ button to create a position. Since we de
 
 1. Choose a token you want to short as your **Target Token** ( _Loans_ )
 2. Choose a stable coin as your **Pair Token** ( _Collaterals_ )
-3. Follow the Step 3 and so on in the previous section. Remember that Target Token is the one you'd like its price to go down, the opposite goes to the Pair Token. Stable coins are just the pair that pegs the price. If properly selected, you can achieve a long/short position simultaneously.
+3. Follow _Step 3_ and so on in the previous section. Remember that Target Token is the one you'd like its price to go down, and the opposite goes to the Pair Token. Stable coins are just the pair that pegs the price when you go only oneway. If properly selected, you can achieve a long&short position _simultaneously_.
 
 ### Deleverage
 
@@ -39,13 +43,15 @@ Deleverage can be done in a single transaction without introducing external liqu
 6. Click _Next_. You need to approve all the **aTokens** of your reduced collaterals to transfer to this contract, so that it can withdraw them to pay for your debt.
 7. Click _Submit_ to trigger the contract interaction with your crypto wallet.
 
+**Note**: In both _leverage_ and _deleverage_, due to the variable slippages in token exchanges, the remaining tokens after repaying the flash loan, should there be any, will be transferred to the user account. This contract WILL NOT hold any tokens.
+
 # Development
 
 Since this contract relies on price oracles and token exchanges heavily, you need to [fork the mainnet](https://hardhat.org/hardhat-network/guides/mainnet-forking.html#mainnet-forking) for testing in order to get reliable token prices and slippages. To do this on Hardhat:
 
 1. Set _INFURA_API_KEY_ env variable and it will be picked up in _hardhat.config.ts_. i.e.
 
-```json
+```
 {
   hardhat: {
     forking: {
@@ -75,3 +81,30 @@ Or,
 ```shell
 npx hardhat coverage --network localhost
 ```
+
+## Contract error codes
+
+| Code | Use case   | Description                                                                                                                                             |
+| :--: | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|  E1  | Leverage   | Collaterals are not enough to borrow the specified amount of target tokens.                                                                             |
+|  E2  | Leverage   | User did not approve the borrow delegation for target tokens.                                                                                           |
+|  E3  | Leverage   | Pair token cannot be collateral.                                                                                                                        |
+|  E4  | Leverage   | Target token is not borrowable.                                                                                                                         |
+|  E5  | Deleverage | Health factor is below 1.                                                                                                                               |
+|  E6  | Deleverage | Duplicate entry in asset list.                                                                                                                          |
+|  E7  | Deleverage | The lengths of asset list and amount list are not equal.                                                                                                |
+|  E8  | Deleverage | At least one token in asset list cannot be collateral.                                                                                                  |
+|  E9  | Deleverage | The reduced asset value cannot repay the target token.                                                                                                  |
+| E10  | Deleverage | The reduced asset value exceeds what needed to repay the target token. \*Note that deleverage is not supposed to replace the withdraw function of Aave. |
+| E11  | Deleverage | At least one token in asset list exceeds what user owns.                                                                                                |
+| E12  | Deleverage | User did not approve at least one aToken in asset list transferring to contract.                                                                        |
+| E13  | Deleverage | AToken transfer failed with unknown reason.                                                                                                             |
+| E14  | Deleverage | The amount of variable debt of target token exceeds what user owns.                                                                                     |
+| E15  | Deleverage | The amount of stable debt of target token exceeds what user owns.                                                                                       |
+| E16  | General    | The fees sent in is not enough.                                                                                                                         |
+| E17  | General    | Contract was not able to exchange tokens by the specified slippage.                                                                                     |
+| E18  | General    | Contract multiplication operation overflowed.                                                                                                           |
+| E19  | General    | Contract addition operation overflowed.                                                                                                                 |
+| E20  | General    | Contract division operation was divided by zero.                                                                                                        |
+| E21  | General    | Contract was called by an unknown function signature. (Fallback function is not allowed.)                                                               |
+| E22  | General    | This contract function can be only called by _Aave Lending Pool_.                                                                                       |
