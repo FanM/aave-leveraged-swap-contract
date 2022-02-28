@@ -1,5 +1,7 @@
 # Aave Leveraged Swap
 
+![App Screenshot](./screenshot.jpeg)
+
 Dapp: [Aave-swap](https://aave-swap.oughtto.be)
 
 Contract: [0xf2b08a65726b894b550f5c6cfc95576f8dec263f](https://polygonscan.com/address/0xf2b08a65726b894b550f5c6cfc95576f8dec263f)
